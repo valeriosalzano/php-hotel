@@ -1,5 +1,6 @@
 <?php
 
+    // DATA
     $hotels = [
 
         [
@@ -40,6 +41,61 @@
 
     ];
 
+    // FUNCTIONS 
+    function printTableHeadings($array){
+      foreach ($array[0] as $key => $value) {
+        $title = '';
+        switch ($key) {
+          case 'name':
+            $title = 'Nome';
+            break;
+          case 'description':
+            $title = 'Descrizione';
+            break;
+          case 'parking':
+            $title = 'Parcheggio';
+            break;
+          case 'vote':
+            $title = 'Punteggio';
+            break;
+          case 'distance_to_center':
+            $title = 'Distanza dal centro';
+            break;
+          default:
+            echo '$key default!';
+            break;
+        }
+        echo "<th> $title </th>";
+      }
+    };
+
+    function printStripedTableRows($array){
+      $odd = true;
+          foreach ($array as $element) {
+
+            echo "<tr ".($odd? "class='table-secondary'":"")." >";
+            $odd = !$odd;
+
+            foreach ($element as $key => $value) {
+              $info = '';
+              switch ($key) {
+                case 'parking':
+                  $info = $value? 'Si' : 'No';
+                  break;
+                case 'distance_to_center':
+                  $info = $value.' km';
+                  break;
+                default:
+                  $info = $value;
+                  break;
+              }
+              echo "<td> $info  </td>";
+            }
+            echo "<tr>";
+          }
+    }
+
+
 ?>
 
 <!DOCTYPE html>
@@ -48,76 +104,79 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PHP Hotel</title>
 </head>
 
-<body>
-  <header>
-    <h1>PHP Hotel</h1>
+<body class="bg-black text-white">
+
+  <header class="text-center">
+    <h1 class="display-1 my-5 fw-5">PHP Hotel</h1>
   </header>
 
-  <main>
+  <main class="container">
+    <!-- FORM -->
+    <form class="row row-cols-lg-auto g-3 align-items-center mb-4" method="GET">
+      <div class="col-12">
+        <label class="visually-hidden" for="nameFilter">Name Search</label>
+        <div class="input-group">
+          <div class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></div>
+          <input type="text" class="form-control" id="nameFilter" name="name" placeholder="Cerca per nome...">
+        </div>
+      </div>
 
-    <table class="table table-hover">
-      <thead>
-        <tr>
+      <div class="col-12">
+        <label class="visually-hidden" for="voteFilter">Rating</label>
+        <select class="form-select" id="voteFilter" name="vote">
+          <option selected>Punteggio...</option>
           <?php
-          foreach ($hotels[0] as $key => $value) {
-            $title = '';
-            switch ($key) {
-              case 'name':
-                $title = 'Nome';
-                break;
-              case 'description':
-                $title = 'Descrizione';
-                break;
-              case 'parking':
-                $title = 'Parcheggio';
-                break;
-              case 'vote':
-                $title = 'Punteggio';
-                break;
-              case 'distance_to_center':
-                $title = 'Distanza dal centro';
-                break;
-              default:
-                echo '$key default!';
-                break;
+            for ($i=1; $i<=5; $i++){
+              echo "<option value='$i'>$i</option>";
             }
-            echo "<th> $title </th>";
-          }
           ?>
-        </tr>
-      </thead>
-      <tbody>
-        <?php
-        $odd = true;
-        foreach ($hotels as $hotel) {
+        </select>
+      </div>
 
-          echo "<tr ".($odd? "class='table-light'":"")." >";
-          $odd = !$odd;
+      <div class="col-12">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="parkingFilter" name="parking">
+          <label class="form-check-label" for="parkingFilter">
+            Parcheggio
+          </label>
+        </div>
+      </div>
 
-          foreach ($hotel as $key => $value) {
-            $info = '';
-            switch ($key) {
-              case 'parking':
-                $info = $value? 'Si' : 'No';
-                break;
-              case 'distance_to_center':
-                $info = $value.' km';
-                break;
-              default:
-                $info = $value;
-                break;
-            }
-            echo "<td> $info  </td>";
-          }
-          echo "<tr>";
-        }
-        ?>
-      </tbody>
-    </table>
+      <div class="col-12">
+        <label for="distanceFilter" class="form-label">Distanza dal centro (0 - 100km)</label>
+        <input type="range" class="form-range" id="distanceFilter" min="0" max="100" name="distance">
+      </div>
+
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+      <div class="col-12">
+        <button type="reset" class="btn btn-warning">Reset</button>
+      </div>
+    </form>
+    
+    <!-- TABLE -->
+    <div class="border border-2 rounded-2 overflow-hidden border-dark">
+      <table class="table table-hover mb-0 table-light" >
+        <thead>
+          <tr>
+            <?php
+              printTableHeadings($hotels);
+            ?>
+          </tr>
+        </thead>
+        <tbody class="table-group-divider">
+          <?php
+            printStripedTableRows($hotels);
+          ?>
+        </tbody>
+      </table>
+    </div>
 
   </main>
 
