@@ -41,6 +41,8 @@
 
     ];
 
+    $filters = $_GET ?? '';
+
     // FUNCTIONS 
     function printTableHeadings($array){
       foreach ($array[0] as $key => $value) {
@@ -67,14 +69,19 @@
         }
         echo "<th> $title </th>";
       }
-    };
+    }
 
-    function printStripedTableRows($array){
+    function printStripedTableRows($array,$filters){
       $odd = true;
           foreach ($array as $element) {
+            $isStriped = $odd? 'table-secondary':'';
+            $isHidden = isHidden($element,$filters)? 'd-none': '';
 
-            echo "<tr ".($odd? "class='table-secondary'":"")." >";
-            $odd = !$odd;
+            echo "<tr class='".$isStriped." ".$isHidden."' >";
+
+            if($isHidden == ''){
+              $odd = !$odd;
+            }
 
             foreach ($element as $key => $value) {
               $info = '';
@@ -89,12 +96,46 @@
                   $info = $value;
                   break;
               }
-              echo "<td> $info  </td>";
+              echo " <td> $info  </td> ";
             }
             echo "<tr>";
           }
     }
 
+    function isHidden($hotel,$filters){
+      $hidden = false;
+      if(!empty($filters)){
+        foreach ($filters as $key => $filter) {
+          switch ($key) {
+            case 'name':
+              if(!empty($filter)){
+                $hidden = !str_contains($hotel[$key],$filter);
+              }
+              break;
+            case 'vote':
+              if(!empty($filter)){
+                $hidden = $hotel['vote']<$filter;
+              }
+              break;
+            case 'parking':
+              $hidden = $hotel['parking'] == false;
+              break;
+            case 'distance_to_center':
+              $hidden = $hotel['distance_to_center']>$filter;
+              break;
+            default:
+              echo "isHidden deafult!";
+              break;
+          }
+          if($hidden){
+            //rejected
+            return $hidden;
+          }
+        }
+      }
+      //approved
+      return $hidden;
+    }
 
 ?>
 
@@ -129,7 +170,7 @@
       <div class="col-12">
         <label class="visually-hidden" for="voteFilter">Rating</label>
         <select class="form-select" id="voteFilter" name="vote">
-          <option selected>Punteggio...</option>
+          <option selected value="">Punteggio...</option>
           <?php
             for ($i=1; $i<=5; $i++){
               echo "<option value='$i'>$i</option>";
@@ -148,8 +189,8 @@
       </div>
 
       <div class="col-12">
-        <label for="distanceFilter" class="form-label">Distanza dal centro (0 - 100km)</label>
-        <input type="range" class="form-range" id="distanceFilter" min="0" max="100" name="distance">
+        <label for="distanceFilter" class="form-label">Distanza dal centro (0 - 50km)</label>
+        <input type="range" class="form-range" id="distanceFilter" min="0" max="50" name="distance_to_center" value="50">
       </div>
 
       <div class="col-12">
@@ -162,7 +203,7 @@
     
     <!-- TABLE -->
     <div class="border border-2 rounded-2 overflow-hidden border-dark">
-      <table class="table table-hover mb-0 table-light" >
+      <table class="table mb-0 table-light" >
         <thead>
           <tr>
             <?php
@@ -172,7 +213,7 @@
         </thead>
         <tbody class="table-group-divider">
           <?php
-            printStripedTableRows($hotels);
+            printStripedTableRows($hotels,$filters);
           ?>
         </tbody>
       </table>
