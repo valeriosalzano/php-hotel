@@ -59,6 +59,66 @@
 
   <main>
 
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <?php
+          foreach ($hotels[0] as $key => $value) {
+            $title = '';
+            switch ($key) {
+              case 'name':
+                $title = 'Nome';
+                break;
+              case 'description':
+                $title = 'Descrizione';
+                break;
+              case 'parking':
+                $title = 'Parcheggio';
+                break;
+              case 'vote':
+                $title = 'Punteggio';
+                break;
+              case 'distance_to_center':
+                $title = 'Distanza dal centro';
+                break;
+              default:
+                echo '$key default!';
+                break;
+            }
+            echo "<th> $title </th>";
+          }
+          ?>
+        </tr>
+      </thead>
+      <tbody>
+        <?php
+        $odd = true;
+        foreach ($hotels as $hotel) {
+
+          echo "<tr ".($odd? "class='table-light'":"")." >";
+          $odd = !$odd;
+
+          foreach ($hotel as $key => $value) {
+            $info = '';
+            switch ($key) {
+              case 'parking':
+                $info = $value? 'Si' : 'No';
+                break;
+              case 'distance_to_center':
+                $info = $value.' km';
+                break;
+              default:
+                $info = $value;
+                break;
+            }
+            echo "<td> $info  </td>";
+          }
+          echo "<tr>";
+        }
+        ?>
+      </tbody>
+    </table>
+
   </main>
 
 </body>
